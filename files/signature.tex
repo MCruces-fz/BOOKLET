@@ -1,0 +1,99 @@
+\documentclass[a5paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+
+\usepackage[pass]{geometry}
+\usepackage{tikz}
+\usepackage{hyperref}
+
+\pdfpageheight=210mm
+\pdfpagewidth=148mm
+
+\begin{document}
+
+\begin{titlepage}
+
+%\vspace{-3cm}
+
+\textsl{\Huge Booklet Machine}
+
+\begin{center}
+\textit{de}
+\end{center}
+
+\begin{flushright}
+\textsc{\Huge Miguel Cruces}
+
+\end{flushright}
+
+\vfill
+
+
+
+\textit{Este es un proyecto independiente que nació por el amor a los libros, programado en} \textsf{Python} \textit{durante los ratos libres mientras estudiaba en la} \textsc{Facultad de Física, USC}. 
+ 
+\textit{La motivación para desarrollar este trabajo surgió de la necesidad de encuadernar a mano libros escritos por uno mismo, ya que en el momento no existía ningún otro trabajo satisfactorio para mí por la red. Entonces, decidí crear el mío propio y compartirlo, para que más personas lo puedan disfrutar y me ayuden a encontrar errores o posibles mejoras.}
+
+%\begin{center}
+%{\huge $\Psi$}
+%\end{center}
+
+\begin{flushright}
+\textit{Gracias por usar} \textsl{Booklet Machine}.
+
+Paz.
+
+\vspace{0.25cm}
+\end{flushright}
+
+
+\vfill
+
+\begin{center}
+\begin{tikzpicture}
+\draw (0,0) rectangle (1.618*3,1*3);
+\draw (1*3,0) rectangle (1.618*3,1*3);
+\draw (1*3,0) rectangle (1.618*3,1);
+\draw (1*3,0) rectangle (3+0.618,1);
+\draw (1*3,0.618) rectangle (3.618,1);
+\end{tikzpicture}
+\end{center}
+
+\vspace*{-2cm}
+
+\end{titlepage}
+
+\pagebreak
+
+\begin{titlepage}
+\vfill
+
+\begin{center}
+Con el paquete \textsf{PyPDF2} de \textsc{Matthew Stamy}, en \textsf{GitHub}: \url{https://github.com/mstamy2/PyPDF2}
+
+\vspace{2cm}
+
+\textsf{\textbf{PyPDF2}}
+
+\vspace{0.5cm}
+
+{\footnotesize \textsf{PyPDF2} is a \textsf{pure-ython PDF library} capable of splitting,}
+
+{\footnotesize merging together, cropping, and transforming the pages of PDF files.}
+
+{\footnotesize It can also add custom data, viewing options, and passwords}
+
+{\footnotesize to PDF files. It can retrieve text and metadata from PDFs as well as merge entire files together.}
+
+\end{center}
+
+\vspace{5cm}
+
+\textbf{Documentación en:}
+
+\url{https://pythonhosted.org/PyPDF2/}
+
+\vfill
+\end{titlepage}
+
+\end{document}

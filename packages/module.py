@@ -24,13 +24,19 @@ if ROOT_DIR not in sys.path:
     # para encontrar la versión local de la biblioteca
     sys.path.append(ROOT_DIR)
 
-from packages import inputDir, outputDir
+from packages import inputDir, outputDir, filesDir
 
 fileName = sorted(os.listdir(inputDir))[-1]
 filePath = joinPath(inputDir, fileName)
 inFile = open(filePath, 'rb')
 inPdf = pyp.PdfFileReader(inFile)
 outPdf = pyp.PdfFileWriter()
+
+signPath = joinPath(filesDir, "signature.pdf")
+signFile = open(signPath, 'rb')
+signature = pyp.PdfFileReader(signFile)
+signPage = signature.getPage(0)
+signPyPDF2 = signature.getPage(1)
 
 #================ FUNCTIONS ===============#
 
@@ -39,23 +45,27 @@ def add_pages(inPdf, addblank):
     # create the output file
     outPdf.appendPagesFromReader(inPdf)
     for i in range(addblank):
-        # add one page in each loop, in addblank loops
-        outPdf.addBlankPage()
-    # save the changes in extra_pages
+        if i==0:
+            outPdf.addPage(signPage)
+            continue
+        if i==1:
+            outPdf.addPage(signPyPDF2)
+            continue
+#    # save the changes in extra_pages
 #     savePath = joinPath(outputDir, 'extra_pages.pdf')
 #     with open(savePath, 'wb') as outfile:
 #         outPdf.write(outfile)
-    # return extra_pages opened
-#     return pyp.PdfFileReader(open(savePath, 'rb')) # remember to close 'outfile' file
+        # add one page in each loop, in addblank loops
+        outPdf.addBlankPage()
     return outPdf
 
 # it adds the necessary pages to the end of the file, with add_pages
 def set_length(inPdf, N, f=False):
     #=========== SHEETS PER BOOKLET ===========#
     if N == 1:
-        print('This pdf has N = %d page.' %(N))
+        print(f'This pdf has N = {N} page.')
     else:
-        print('This pdf has N = %d pages.' %(N))
+        print(f'This pdf has N = {N} pages.')
     if f == False:
         f = 4
     #========== SET ADDBLANK NUMBER ==========#
@@ -65,11 +75,12 @@ def set_length(inPdf, N, f=False):
     else:
         addblank = 0
     if addblank > 1 and addblank < 4*f:
-        print('So, with %d sheets per booklet, we need to add %d blank pages at the end of the pdf.' %(f, addblank))
+        print(f'So, with {f} sheets per booklet, we need to add {addblank} blank pages at the end of the pdf.')
     if addblank == 1:
-        print('So, with %d sheets per booklet, we need to add %d blank page at the end of the pdf.' %(f, addblank))
+        print('So, with {f} sheets per booklet, we need to add {addblank} blank page at the end of the pdf.')
     if addblank == 0:
         print('So that is exactly that we need.')
+        addblank = 4*f
     #========== ADD PAGES AT THE END ==========#
     extra_pages = add_pages(inPdf,addblank)
     return extra_pages, f, addblank # remember to close 'outfile' file
@@ -171,6 +182,7 @@ def orientate_page(SortedPdf, _N):
     with open(joinPath(outputDir, f'{fileName[:-4]}_Booklet.pdf'), 'wb') as fo:
         outPdf.write(fo)
 
+#signFile.close()
 
 #if __name__ == '__main__':
 #     # ========================= DEFINE VARIABLES ========================= #

@@ -28,21 +28,7 @@ inFile = open(filePath, 'rb')
 inPdf = pyp.PdfFileReader(inFile)
 outPdf = pyp.PdfFileWriter()
 
-# it adds a number of addblank pages to the end of the file
-def add_pages(inPdf, addblank):
-    # create the output file
-    outPdf.appendPagesFromReader(inPdf)
-    for i in range(addblank):
-        # add one page in each loop, in addblank loops
-        outPdf.addBlankPage()
-    # save the changes in extra_pages
-#     savePath = joinPath(outputPath, 'extra_pages.pdf')
-#     with open(savePath, 'wb') as outfile:
-#         outPdf.write(outfile)
-#     return pyp.PdfFileReader(open(savePath, 'rb')) # remember to close 'outfile' file
-    return outPdf
 
-add_pages(inPdf, 4)
 
 
 # ========================= DEFINE VARIABLES ========================= #
@@ -60,8 +46,7 @@ dinA = [PageHeight, PageWidth]
 # ========================= RUN the PROGRAM ========================= #
 
 # Añade páginas blancas al final del archivo original (poner una firma en la última página)
-ExtraPagesPdf, f, addblank = set_length(inPdf, N, f=4)
-
+ExtraPagesPdf, f, addblank = set_length(inPdf, N, f=5)
 
 
 # la variable _N es el nuevo número de páginas
@@ -97,6 +82,7 @@ orientate_page(almostFinalPdf, _fN)
 
 print(f'Now you can use {fileName[:-4]}_Booklet.pdf as you want!')
 inFile.close()
+#signFile.close()
 
 
 
