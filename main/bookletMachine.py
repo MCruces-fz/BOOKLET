@@ -88,7 +88,6 @@ inFile.close()
 
 '''
 TO DO:
-    Poner firma de en la última página
     Que la carpeta output se genere si no existe
     Ya la hostia:
         Programar una ventanita con botones y todo el rollo
