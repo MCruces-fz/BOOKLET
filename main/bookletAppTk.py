@@ -24,7 +24,7 @@ if ROOT_DIR not in sys.path:
 
 # Aqui se importan mis paquetes
 from packages.module import set_length, sort, twoByTwo, link_merged, orientate_page
-from packages import inputDir
+from packages import inputDir, outputDir
 
 
 fileName = sorted(os.listdir(inputDir))[-1]
@@ -47,9 +47,9 @@ class Application():
         imgFibonacci = imgFibonacci.subsample(2, 2)
         self.imageFib = ttk.Label(self.root, image=imgFibonacci, anchor="center")
         
-        # MODEL
+        # INPUT
         # Label 'Directory of..."
-        self.inputDirLabel = ttk.Label(self.root,text='Path to Input Directory:')
+        self.inputDirLabel = ttk.Label(self.root,text='Input:')
         # Path to Directory
         self.inputDirStr = StringVar(value=inputDir)
         self.inputDirEntry = Entry(self.root, textvariable=self.inputDirStr)
@@ -61,12 +61,31 @@ class Application():
         # Button Browse
         self.browseInputDirButton = ttk.Button(self.root, text="Browse", command=browseInputDir)
         
+        # OUTPUT
+        # Label 'Directory of..."
+        self.outputDirLabel = ttk.Label(self.root,text='Output:')
+        # Path to Directory
+        self.outputDirStr = StringVar(value=outputDir)
+        self.outputDirEntry = Entry(self.root, textvariable=self.outputDirStr)
+        
+        def browseOutputDir():
+            filename = filedialog.askdirectory()
+            self.outputDirStr.set(filename)
+        
+        # Button Browse
+        self.browseOutputDirButton = ttk.Button(self.root, text="Browse", command=browseOutputDir)
+        
         
         # Grids
-        self.imageFib.grid(row=0, columnspan=3, sticky='w'+'n'+'e'+'s', padx=10, pady=10)
-        self.inputDirLabel.grid(row=1, sticky='w', padx=10, pady=5)
-        self.inputDirEntry.grid(row=2, columnspan=2, sticky='w'+'e', padx=10, pady=5)
-        self.browseInputDirButton.grid(row=2, column=2, padx=10, pady=5)
+        self.imageFib.grid(row=0, columnspan=4, sticky='w'+'n'+'e'+'s', padx=10, pady=10)
+        
+        self.inputDirLabel.grid(row=1, column=0, sticky='w', padx=5, pady=5)
+        self.inputDirEntry.grid(row=1, column=1, columnspan=2, sticky='w'+'e', padx=0, pady=5)
+        self.browseInputDirButton.grid(row=1, column=3, padx=5, pady=5)
+        
+        self.outputDirLabel.grid(row=2, column=0, sticky='w', padx=5, pady=5)
+        self.outputDirEntry.grid(row=2, column=1, columnspan=2, sticky='w'+'e', padx=0, pady=5)
+        self.browseOutputDirButton.grid(row=2, column=3, padx=5, pady=5)
         
 #        self.root.attributes("-transparentcolor", "#f0f0f0")
         
