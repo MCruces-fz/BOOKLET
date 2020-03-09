@@ -35,18 +35,25 @@ class Application():
     def __init__(self):
         self.root = Tk()
         self.root.title("MCruces - Booklets App")
+        self.root.configure(background='#f0f0f0')
+        
+#        style = ttk.Style(self.root)
+#        style.theme_use('classic')
+#        style.configure('Dlr.TFrame', background='blue')
         
         # Carga imagen Fibonacci
         imgFibonacci = PhotoImage(file='Fibonacci.png')
         imgFibonacci = imgFibonacci.subsample(2, 2)
         self.imageFib = ttk.Label(self.root, image=imgFibonacci, anchor="center")
         
+        self.titleLabel = Label(self.root, text='Booklet Machine', font='Helvetica 20 bold')
+        
         # INPUT
         # Label 'Directory of..."
         self.inputDirLabel = ttk.Label(self.root,text='Input:')
         # Path to Directory
         self.inputDirStr = StringVar(value=inputDir)
-        self.inputDirEntry = Entry(self.root, width=30, textvariable=self.inputDirStr)
+        self.inputDirEntry = Entry(self.root, width=30, textvariable=self.inputDirStr, justify='right')
         
         def browseInputDir():
             filename = filedialog.askdirectory()
@@ -60,7 +67,7 @@ class Application():
         self.outputDirLabel = ttk.Label(self.root,text='Output:')
         # Path to Directory
         self.outputDirStr = StringVar(value=outputDir)
-        self.outputDirEntry = Entry(self.root, width=30, textvariable=self.outputDirStr)
+        self.outputDirEntry = Entry(self.root, width=30, textvariable=self.outputDirStr, justify='right')
         
         def browseOutputDir():
             filename = filedialog.askdirectory()
@@ -83,18 +90,20 @@ class Application():
         # Grids
         self.imageFib.grid(row=0, columnspan=4, sticky='news', padx=10, pady=10)
         
-        self.inputDirLabel.grid(row=1, column=0, sticky='e', padx=5, pady=5)
-        self.inputDirEntry.grid(row=1, column=1, columnspan=2, sticky='we', padx=0, pady=5)
-        self.browseInputDirButton.grid(row=1, column=3, sticky='we', padx=5, pady=5)
+        self.titleLabel.grid(row=1, column=0, columnspan=4, sticky='we', padx=5, pady=5)
         
-        self.outputDirLabel.grid(row=2, column=0, sticky='e', padx=5, pady=5)
-        self.outputDirEntry.grid(row=2, column=1, columnspan=2, sticky='we', padx=0, pady=5)
-        self.browseOutputDirButton.grid(row=2, column=3, sticky='we', padx=5, pady=5)
+        self.inputDirLabel.grid(row=2, column=0, sticky='e', padx=5, pady=5)
+        self.inputDirEntry.grid(row=2, column=1, columnspan=2, sticky='we', padx=0, pady=5)
+        self.browseInputDirButton.grid(row=2, column=3, sticky='we', padx=5, pady=5)
         
-        self.fNumberLabel.grid(row=3, column=0, columnspan=2, sticky='e', padx=5, pady=5)
-        self.fNumberEntry.grid(row=3, column=2, sticky='w', padx=5, pady=5)
+        self.outputDirLabel.grid(row=3, column=0, sticky='e', padx=5, pady=5)
+        self.outputDirEntry.grid(row=3, column=1, columnspan=2, sticky='we', padx=0, pady=5)
+        self.browseOutputDirButton.grid(row=3, column=3, sticky='we', padx=5, pady=5)
         
-        self.runButton.grid(row=4, column=0, columnspan=4, sticky='we', padx=5, pady=5)
+        self.fNumberLabel.grid(row=4, column=0, columnspan=2, sticky='e', padx=5, pady=5)
+        self.fNumberEntry.grid(row=4, column=2, sticky='w', padx=5, pady=5)
+        
+        self.runButton.grid(row=5, column=0, columnspan=4, sticky='we', padx=5, pady=5)
         
 #        self.root.attributes("-transparentcolor", "#f0f0f0")
         
