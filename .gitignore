@@ -6,6 +6,11 @@ __pycache__/
 # C extensions
 *.so
 
+# My GitIgnores
+.idea
+.DS_Stroe
+__pycache__
+
 # Distribution / packaging
 .Python
 env/
