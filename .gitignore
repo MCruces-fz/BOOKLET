@@ -10,6 +10,10 @@ __pycache__/
 .idea
 .DS_Store
 __pycache__
+files/*.aux
+files/*.log
+files/*.synctex.gz
+files/*.out
 
 # Distribution / packaging
 .Python
