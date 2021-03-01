@@ -1,4 +1,4 @@
-# Byte-compiled / optimized / DLL files
+# Byte-compiled / optimized / DLL store
 __pycache__/
 *.py[cod]
 *$py.class
@@ -10,10 +10,10 @@ __pycache__/
 .idea
 .DS_Store
 __pycache__
-files/*.aux
-files/*.log
-files/*.synctex.gz
-files/*.out
+store/*.aux
+store/*.log
+store/*.synctex.gz
+store/*.out
 
 # Distribution / packaging
 .Python
@@ -35,7 +35,7 @@ wheels/
 *.egg
 
 # PyInstaller
-#  Usually these files are written by a python script from a template
+#  Usually these store are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
@@ -92,7 +92,7 @@ target/
 # celery beat schedule file
 celerybeat-schedule
 
-# SageMath parsed files
+# SageMath parsed store
 *.sage.py
 
 # dotenv

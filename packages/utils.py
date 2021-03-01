@@ -5,13 +5,13 @@ Created on Sun Jan 19 22:22:22 2020
 @author: Miguel
 """
 
-import PyPDF2 as pyp # Documentation at:
+import PyPDF2 as pyp  # Documentation at:
 # https://pythonhosted.org/PyPDF2/
-from PyPDF2.pdf import PageObject # Documentation at:
+from PyPDF2.pdf import PageObject  # Documentation at:
 # https://pythonhosted.org/PyPDF2/PageObject.html
 import numpy as np
 import os
-#from os import listdir
+# from os import listdir
 from os.path import join as joinPath
 
 import sys
@@ -24,104 +24,108 @@ if ROOT_DIR not in sys.path:
     # para encontrar la versión local de la biblioteca
     sys.path.append(ROOT_DIR)
 
-from packages import inputDir, outputDir, filesDir
+from utils.const import INPDIR, OUTDIR, STORE
 
-fileName = sorted(os.listdir(inputDir))[-1]
-filePath = joinPath(inputDir, fileName)
+fileName = sorted(os.listdir(INPDIR))[-1]
+filePath = joinPath(INPDIR, fileName)
 inFile = open(filePath, 'rb')
 inPdf = pyp.PdfFileReader(inFile)
 outPdf = pyp.PdfFileWriter()
 
-signPath = joinPath(filesDir, "signature.pdf")
+signPath = joinPath(STORE, "signature.pdf")
 signFile = open(signPath, 'rb')
 signature = pyp.PdfFileReader(signFile)
 signPage = signature.getPage(0)
 signPyPDF2 = signature.getPage(1)
 
-#================ FUNCTIONS ===============#
+
+# ================ FUNCTIONS ===============#
 
 # it adds a number of addblank pages to the end of the file
 def add_pages(inPdf, addblank):
     # create the output file
     outPdf.appendPagesFromReader(inPdf)
     for i in range(addblank):
-        if i==0:
+        if i == 0:
             outPdf.addPage(signPage)
             continue
-        if i==1:
+        if i == 1:
             outPdf.addPage(signPyPDF2)
             continue
-#    # save the changes in extra_pages
-#     savePath = joinPath(outputDir, 'extra_pages.pdf')
-#     with open(savePath, 'wb') as outfile:
-#         outPdf.write(outfile)
+        #    # save the changes in extra_pages
+        #     savePath = join_path(OUTDIR, 'extra_pages.pdf')
+        #     with open(savePath, 'wb') as outfile:
+        #         outPdf.write(outfile)
         # add one page in each loop, in addblank loops
         outPdf.addBlankPage()
     return outPdf
 
+
 # it adds the necessary pages to the end of the file, with add_pages
 def set_length(inPdf, N, f=False):
-    #=========== SHEETS PER BOOKLET ===========#
+    # =========== SHEETS PER BOOKLET ===========#
     if N == 1:
         print(f'This pdf has N = {N} page.')
     else:
         print(f'This pdf has N = {N} pages.')
     if f == False:
         f = 4
-    #========== SET ADDBLANK NUMBER ==========#
-    remaining = N%(4*f)
+    # ========== SET ADDBLANK NUMBER ==========#
+    remaining = N % (4 * f)
     if remaining != 0:
-        addblank = 4*f - remaining
+        addblank = 4 * f - remaining
     else:
         addblank = 0
-    if addblank > 1 and addblank < 4*f:
+    if addblank > 1 and addblank < 4 * f:
         print(f'So, with {f} sheets per booklet, we need to add {addblank} blank pages at the end of the pdf.')
     if addblank == 1:
         print('So, with {f} sheets per booklet, we need to add {addblank} blank page at the end of the pdf.')
     if addblank == 0:
         print('So that is exactly that we need.')
-        addblank = 4*f
-    #========== ADD PAGES AT THE END ==========#
-    extra_pages = add_pages(inPdf,addblank)
-    return extra_pages, f, addblank # remember to close 'outfile' file
+        addblank = 4 * f
+    # ========== ADD PAGES AT THE END ==========#
+    extra_pages = add_pages(inPdf, addblank)
+    return extra_pages, f, addblank  # remember to close 'outfile' file
+
 
 # ExtraPagesPdf, f, addblank = set_length(inPdf, N, f=5)
 
 
 # it sorts the file
 def sort(inPdf, N, f, addblank, W):
-    #============= ORDER OF PAGES =============#
+    # ============= ORDER OF PAGES =============#
     # Number of booklets (Nbk)
-    Nbk = (N+ addblank)//(4*f)
-    if (N+ addblank)%(4*f) != 0:
+    Nbk = (N + addblank) // (4 * f)
+    if (N + addblank) % (4 * f) != 0:
         print('Something is wrong with addblank value.')
     # Pages in original order (i.e.: [1, 2, 3, 4, 5, ...])
-#    PDF = np.ones(N + addblank) + np.array(range(N + addblank))
+    #    PDF = np.ones(N + addblank) + np.array(range(N + addblank))
     # it will be the correct order
     pdf = np.zeros(N + addblank)
     # loop which enters in each booklet
-    for b in range(Nbk):# Booklets loop
-        for n in range(0, 4*f, 2):# Couples of pages insde any booklet loop
-            bk = b*4*f# Booklet counter
-            if n%4 == 2:
-                pdf[bk+n+1] = 1+ n/2 + b*4*f# First value of the couple
-                pdf[bk+n] = 4*f -n/2 + b*4*f# Second value of the couple
+    for b in range(Nbk):  # Booklets loop
+        for n in range(0, 4 * f, 2):  # Couples of pages insde any booklet loop
+            bk = b * 4 * f  # Booklet counter
+            if n % 4 == 2:
+                pdf[bk + n + 1] = 1 + n / 2 + b * 4 * f  # First value of the couple
+                pdf[bk + n] = 4 * f - n / 2 + b * 4 * f  # Second value of the couple
             else:
-                pdf[bk+n] = 1+ n/2 + b*4*f# First value of the couple
-                pdf[bk+n+1] = 4*f -n/2 + b*4*f# Second value of the couple
+                pdf[bk + n] = 1 + n / 2 + b * 4 * f  # First value of the couple
+                pdf[bk + n + 1] = 4 * f - n / 2 + b * 4 * f  # Second value of the couple
     # Pages in correct order (i.e.: [1, 16, 15, 2, 3, ...])
     pdf = pdf.astype(int)
-    #===== NEW BOOKLET WITH CORRECT ORDER =====#
+    # ===== NEW BOOKLET WITH CORRECT ORDER =====#
     # create the output file
     outPdf = pyp.PdfFileWriter()
     for i in pdf:
-        page = inPdf.getPage(i-1)
+        page = inPdf.getPage(i - 1)
         # It scales the lateral, so half page is 1/sqrt(2) -> A5
         if W >= 20:
-            page.scaleBy(2**(-1/2))
+            page.scaleBy(2 ** (-1 / 2))
         page.rotateCounterClockwise(90)
         outPdf.addPage(page)
     return outPdf, pdf
+
 
 # SortedPdf, correct_order = sort(ExtraPagesPdf, N, f, addblank, PageWidth)
 
@@ -129,21 +133,20 @@ def sort(inPdf, N, f, addblank, W):
 # it merges two pages
 def merge_pages(file, upper, lower):
     outPdf = pyp.PdfFileWriter()
-    
+
     sup_page = file.getPage(upper)
     inf_page = file.getPage(lower)
-    
-    sup_width = file.getPage(0).mediaBox.getWidth()# Width of A4 page
-    sup_height = file.getPage(0).mediaBox.getHeight()# Height of A4 page
-    
-    #Esto es una chamba pero funiona. Establezco un tamaño muy pequeño, y luego que se ajuste solo:
-    translated_page = PageObject.createBlankPage(None, sup_width-600, sup_height-400)
+
+    sup_width = file.getPage(0).mediaBox.getWidth()  # Width of A4 page
+    sup_height = file.getPage(0).mediaBox.getHeight()  # Height of A4 page
+
+    # Esto es una chamba pero funiona. Establezco un tamaño muy pequeño, y luego que se ajuste solo:
+    translated_page = PageObject.createBlankPage(None, sup_width - 600, sup_height - 400)
     translated_page.mergeRotatedTranslatedPage(sup_page, 90, -200, 200, expand=1)
     translated_page.mergeRotatedTranslatedPage(inf_page, 90, 0, 0, expand=1)
-    
+
     outPdf.addPage(translated_page)
     return outPdf
-
 
 
 # pega los archivos de dos en dos y guarda cada página en './output/pages'
@@ -151,12 +154,11 @@ def twoByTwo(SortedPdf, correct_order):
     pagesMerged = []
     for i in range(0, len(correct_order), 2):
         outPdf = pyp.PdfFileWriter()
-        page_merged = merge_pages(SortedPdf, i, i+1)
+        page_merged = merge_pages(SortedPdf, i, i + 1)
         page = page_merged.getPage(0)
         outPdf.addPage(page)
         pagesMerged.append(outPdf)
     return pagesMerged
-
 
 
 def link_merged(twoBy2):
@@ -182,9 +184,9 @@ def orientate_page(SortedPdf, _N, outputDir):
     with open(joinPath(outputDir, f'{fileName[:-4]}_Booklet.pdf'), 'wb') as fo:
         outPdf.write(fo)
 
-#signFile.close()
+# signFile.close()
 
-#if __name__ == '__main__':
+# if __name__ == '__main__':
 #     # ========================= DEFINE VARIABLES ========================= #
 #    
 #    N = inPdf.getNumPages() # obtienes el número de páginas del archivo de entrada
@@ -226,4 +228,4 @@ def orientate_page(SortedPdf, _N, outputDir):
 #    
 #    print('Now you can use FinalPdf.pdf as you want!')
 #    inFile.close()
-#    print('Remember to remove all files when you have finished and closed this program.')
+#    print('Remember to remove all store when you have finished and closed this program.')
