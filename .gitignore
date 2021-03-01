@@ -8,7 +8,7 @@ __pycache__/
 
 # My GitIgnores
 .idea
-.DS_Stroe
+.DS_Store
 __pycache__
 
 # Distribution / packaging
