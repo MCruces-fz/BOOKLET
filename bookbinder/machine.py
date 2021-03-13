@@ -164,6 +164,14 @@ class Booklet:
         return tx, ty
 
     def two_by_two(self, pdf: PdfFileWriter) -> PdfFileWriter:
+        """
+        Merges all pages by couples.
+
+        :param pdf: Input pdf with a pari number of pages, but preferably with
+            a number of pages such that pdf.GetNumPages() % sheets_booklet = 0,
+            because otherwise in the future it will break.
+        :return: Paired PDF instance of PdfFileWriter.
+        """
         paired_pdf = PdfFileWriter()
         for i in range(0, pdf.getNumPages(), 2):
             page_i = pdf.getPage(i)
@@ -174,6 +182,12 @@ class Booklet:
 
     @staticmethod
     def orientate_pages(pdf: PdfFileWriter) -> PdfFileWriter:
+        """
+        Rotate necessary pages to print in a natural way with any printer.
+
+        :param pdf: Input PDf instance of PdfFileWriter.
+        :return: PDF instance of PdfFileWriter with oriented pages.
+        """
         rotate = -1
         for p in range(pdf.getNumPages()):
             pdf.getPage(p).rotateClockwise(np.degrees((1 + rotate) * np.pi / 2))
@@ -181,6 +195,11 @@ class Booklet:
         return pdf
 
     def create(self) -> PdfFileWriter:
+        """
+        Create the PDf instance of PdfFileWriter class with all changes done.
+
+        :return: PDF instance of PdfFileWriter.
+        """
         pdf = self.add_pages(self.pdf, self.add_blank)
         pdf = self.new_layout(pdf)
         pdf = self.two_by_two(pdf)
@@ -189,6 +208,12 @@ class Booklet:
 
     @classmethod
     def create_and_save(cls, input_file_path: str, output_dir_path: str = OUTDIR):
+        """
+        Create and save the file.
+
+        :param input_file_path: Full path to the file to convert.
+        :param output_dir_path: Full path to the output directory (OUTDIR by default).
+        """
         bk = cls(input_file_path)
         pdf = cls.add_pages(bk, bk.pdf, bk.add_blank)
         pdf = cls.new_layout(bk, pdf)
