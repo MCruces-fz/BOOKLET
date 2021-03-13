@@ -4,15 +4,12 @@
 
 from PyPDF2 import PdfFileReader, PdfFileWriter
 from PyPDF2.pdf import PageObject
-from typing import Union, Tuple
-from decimal import Decimal
+from typing import Tuple
 import numpy as np
-import os
 from os.path import join as join_path
 
-from utils.const import OUTDIR
-
-input_pdf_path = "input/CallofCthulhu.pdf"
+from utils.const import OUTDIR, STORE
+from utils.footils import inch2mm, mm2inch, basename
 
 
 class Booklet:
@@ -22,7 +19,7 @@ class Booklet:
         self.pdf = PdfFileWriter()
         self.pdf.appendPagesFromReader(self._input_pdf)
 
-        signature_path = "store/signature.pdf"
+        signature_path = join_path(STORE, "signature.pdf")
         self.signature = PdfFileReader(signature_path)
 
         self._sheets_booklet = sheets_booklet  # Sheets per booklet
@@ -61,26 +58,7 @@ class Booklet:
         return self._add_blank
 
     @staticmethod
-    def inch2mm(value: Union[int, float, Decimal]) -> float:
-        """
-        Conversion of inches to millimeters.
-    
-        :param value: Value in inches to convert to millimeters.
-        :return: Value in millimeters.
-        """
-        return round(float(value) * 25.4 / 72, 3)
-
-    @staticmethod
-    def mm2inch(value: Union[int, float, Decimal]) -> float:
-        """
-        Conversion of millimeters to inches.
-
-        :param value: Value in millimeters to convert to inches.
-        :return: Value in inches.
-        """
-        return round(float(value) * 72 / 25.4, 3)
-
-    def page_shape(self, page: PageObject) -> Tuple[float, float]:
+    def page_shape(page: PageObject) -> Tuple[float, float]:
         """
         Shape of the pages in millimeters.
 
@@ -88,11 +66,8 @@ class Booklet:
         :return: width and height in millimeters.
         """
         page_shape = page.mediaBox
-        # pg_width = self.inch2mm(page_shape.lowerRight[0] - page_shape.lowerLeft[0])
-        # pg_height = self.inch2mm(page_shape.upperLeft[1] - page_shape.lowerLeft[1])
-        pg_width = self.inch2mm(page_shape.getWidth())
-        pg_height = self.inch2mm(page_shape.getHeight())
-        # print(f"PDF with {self.pdf.getNumPages()} pages and dimensions {pg_width:.0f}x{pg_height:.0f} mm")
+        pg_width = inch2mm(page_shape.getWidth())
+        pg_height = inch2mm(page_shape.getHeight())
         return pg_width, pg_height
 
     def add_pages(self, pdf: PdfFileWriter, add_blank: int, signature: bool = True) -> PdfFileWriter:
@@ -144,7 +119,7 @@ class Booklet:
         for p in new_layout:
             page = pdf.getPage(p - 1)
             if (pg_width, pg_height) != (148, 210):  # to dinA5
-                w, h = self.mm2inch(148), self.mm2inch(210)
+                w, h = mm2inch(148), mm2inch(210)
                 page.scaleTo(w, h)
             # page.rotateCounterClockwise(90)
             sorted_pdf.addPage(page)
@@ -162,7 +137,7 @@ class Booklet:
         """
 
         # w, h = self.page_shape(upper)  # dinA5
-        nu_w, nu_h = self.mm2inch(210), self.mm2inch(297)  # dinA4
+        nu_w, nu_h = mm2inch(210), mm2inch(297)  # dinA4
 
         merged_page = PageObject.createBlankPage(width=nu_w, height=nu_h)
 
@@ -212,27 +187,13 @@ class Booklet:
         pdf = self.orientate_pages(pdf)
         return pdf
 
-    @staticmethod
-    def basename(full_path: str) -> str:
-        filename = os.path.basename(full_path)
-        filename_id = os.path.splitext(filename)[0]
-        return filename_id
-
     @classmethod
-    def create_and_save(cls, input_file_path, output_dir_path):
+    def create_and_save(cls, input_file_path: str, output_dir_path: str = OUTDIR):
         bk = cls(input_file_path)
         pdf = cls.add_pages(bk, bk.pdf, bk.add_blank)
         pdf = cls.new_layout(bk, pdf)
         pdf = cls.two_by_two(bk, pdf)
         pdf = cls.orientate_pages(pdf)
 
-        with open(join_path(output_dir_path, f"{bk.basename(input_file_path)}_booklet.pdf"), 'wb') as fo:
+        with open(join_path(output_dir_path, f"{basename(input_file_path)}_booklet.pdf"), 'wb') as fo:
             pdf.write(fo)
-
-
-if __name__ == '__main__':
-    # booklet = Booklet(input_pdf_path)
-    # output = booklet.create()
-    # with open(join_path(OUTDIR, f'output_booklet.pdf'), 'wb') as fo:
-    #     output.write(fo)
-    Booklet.create_and_save(input_pdf_path, OUTDIR)
