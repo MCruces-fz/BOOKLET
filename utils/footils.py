@@ -7,6 +7,8 @@ from decimal import Decimal
 #  - Choose language
 #  - Choose theme (dark / light)
 #  - Choose if write signature at the end.
+#  - Make a config file.json with all settings like in:
+#    https://es.stackoverflow.com/questions/198057/cambiar-color-de-pesta%C3%B1a-seleccionada-en-ttk-notebook
 
 def inch2mm(value: Union[int, float, Decimal]) -> float:
     """
