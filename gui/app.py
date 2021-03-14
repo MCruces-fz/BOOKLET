@@ -7,6 +7,29 @@ from utils.const import STORE, INPDIR, OUTDIR
 from gui.browse_io import BrowseIO
 
 
+class Settings(ttk.Frame):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        frm_settings = ttk.Frame(master=self, style="Booklet.TFrame")
+
+        lbl_theme = ttk.Label(frm_settings, text='Theme: ', style="Regular.TLabel")
+        
+        option_list_theme = ["dark", "light"]
+        self.combo_theme = ttk.Combobox(frm_settings, values=option_list_theme, state="readonly", style="Regular.TCombobox")
+        self.combo_theme.set("dark")
+
+        # GRIDS
+        lbl_theme.grid(row=1, column=1, sticky='news', padx=5, pady=5)  # Grided in Settings
+        self.combo_theme.grid(row=1, column=2, sticky='news', padx=5, pady=5)
+
+        frm_settings.pack(fill=tk.BOTH, expand=True)  # Packed in Options
+        frm_settings.grid_rowconfigure(0, weight=1)
+        frm_settings.grid_rowconfigure(4, weight=1)
+        frm_settings.grid_columnconfigure(0, weight=1)
+        frm_settings.grid_columnconfigure(7, weight=1)
+
+
 class BookletMachine:
     def __init__(self, window_title: str = None, theme: str = "dark"):
         """
@@ -48,6 +71,9 @@ class BookletMachine:
 
         self.frm_browse = BrowseIO()
         self.ntb_instance.add(self.frm_browse, text="Home")
+
+        self.frm_settings = Settings()
+        self.ntb_instance.add(self.frm_settings, text="Settings")
 
         # P A K S 
         self.frm_image.pack(fill=tk.BOTH, expand=True)  # Packed in Window
@@ -100,8 +126,8 @@ class BookletMachine:
                 )
         style.map(
                 "NB.TNotebook.Tab", 
-                foreground=[("selected", "#ffffff"), ("active", "#000000")],
-                background=[("selected", "#C70039"), ("active", "#fc9292")], 
+                foreground=[("selected", self.fg_default), ("active", "#000000")],
+                background=[("selected", self.bg_default), ("active", "#ad7fa8")], 
                 )
         style.configure(
                 "Regular.TLabel", 
@@ -116,8 +142,18 @@ class BookletMachine:
                 foreground=self.fg_default, 
                 background=self.bg_default
                 )
+        style.map(
+                "Regular.TButton", 
+                foreground=[("selected", self.fg_default), ("active", "#000000")],
+                background=[("selected", self.bg_default), ("active", "#ad7fa8")], 
+                )
         style.configure(
                 "Booklet.TFrame", 
+                foreground=self.fg_default, 
+                background=self.bg_default
+                )
+        style.configure(
+                "Regular.TCombobox", 
                 foreground=self.fg_default, 
                 background=self.bg_default
                 )
