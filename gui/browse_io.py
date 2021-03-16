@@ -57,13 +57,14 @@ class BrowseIO(ttk.Frame):
         ent_out_dir.grid(row=2, column=2, columnspan=4, sticky='news', padx=0, pady=5)  # Grided in Choose Dirs
         btn_browse_out.grid(row=2, column=6, sticky='news', padx=5, pady=5)  # Grided in Choose Dirs
 
-        btn_make.grid(row=3, column=3, columnspan=2, sticky='news', padx=5, pady=5)  # Grided in Choose Dirs
+        btn_make.grid(row=3, column=3, sticky='news', padx=5, pady=5)  # Grided in Choose Dirs
 
         frm_choose_dirs.pack(fill=tk.BOTH, expand=True)  # Packed in Options
         frm_choose_dirs.grid_rowconfigure(0, weight=1)
         frm_choose_dirs.grid_rowconfigure(4, weight=1)
-        frm_choose_dirs.grid_columnconfigure(0, weight=1)
-        frm_choose_dirs.grid_columnconfigure(7, weight=1)
+        # frm_choose_dirs.grid_columnconfigure(0, weight=1)
+        frm_choose_dirs.grid_columnconfigure(3, weight=1)
+        # frm_choose_dirs.grid_columnconfigure(7, weight=1)
 
     def file_browser(self, file: tk.StringVar):
         filename = filedialog.askopenfile(
