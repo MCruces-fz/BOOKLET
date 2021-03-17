@@ -5,29 +5,7 @@ from os.path import join as join_path
 from bookbinder.machine import Booklet
 from utils.const import STORE, INPDIR, OUTDIR
 from gui.browse_io import BrowseIO
-
-
-class Settings(ttk.Frame):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        frm_settings = ttk.Frame(master=self, style="Booklet.TFrame")
-
-        lbl_theme = ttk.Label(frm_settings, text='Theme: ', style="Regular.TLabel")
-        
-        option_list_theme = ["dark", "light"]
-        self.combo_theme = ttk.Combobox(frm_settings, values=option_list_theme, state="readonly", style="Regular.TCombobox")
-        self.combo_theme.set("dark")
-
-        # GRIDS
-        lbl_theme.grid(row=1, column=1, sticky='news', padx=5, pady=5)  # Grided in Settings
-        self.combo_theme.grid(row=1, column=2, sticky='news', padx=5, pady=5)
-
-        frm_settings.pack(fill=tk.BOTH, expand=True)  # Packed in Options
-        frm_settings.grid_rowconfigure(0, weight=1)
-        frm_settings.grid_rowconfigure(4, weight=1)
-        frm_settings.grid_columnconfigure(0, weight=1)
-        frm_settings.grid_columnconfigure(7, weight=1)
+from gui.settings import Settings
 
 
 class BookletMachine:
@@ -44,6 +22,7 @@ class BookletMachine:
         self.window = tk.Tk()
         # Configuration:
         self.theme = theme
+        self.active_color = "#ad7fa8"
         self.bg_default = None
         self.fg_default = None
         self.window_config(window_title)
@@ -60,8 +39,10 @@ class BookletMachine:
         # self.lbl_date = None
 
         # IMAGE
-        header_image = tk.PhotoImage(file=join_path(STORE, "Fibonacci.png")).subsample(2, 2)
-        self.img_head = ttk.Label(self.frm_image, image=header_image, style="Title.TLabel")
+        header_image_dark = tk.PhotoImage(file=join_path(STORE, "Fibonacci-dark.png")).subsample(2, 2)
+        header_image_light = tk.PhotoImage(file=join_path(STORE, "Fibonacci-light.png")).subsample(2, 2)
+        self.img_head_light = ttk.Label(self.frm_image, image=header_image_light, style="Title.TLabel")
+        self.img_head_dark = ttk.Label(self.frm_image, image=header_image_dark, style="Title.TLabel")
 
         # TITLE
         self.lbl_title= ttk.Label(self.window, text='Booklet Machine', style="Title.TLabel")
@@ -72,12 +53,12 @@ class BookletMachine:
         self.frm_browse = BrowseIO()
         self.ntb_instance.add(self.frm_browse, text="Home")
 
-        self.frm_settings = Settings()
+        self.frm_settings = Settings(self.window_config)
         self.ntb_instance.add(self.frm_settings, text="Settings")
 
         # P A K S 
         self.frm_image.pack(fill=tk.BOTH, expand=True)  # Packed in Window
-        self.img_head.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)  # Packed in image
+        self.update_image()
         self.lbl_title.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)  # Packed in window
 
         self.frm_notebook.pack(fill=tk.BOTH, expand=True)  # Packed in window
@@ -86,12 +67,23 @@ class BookletMachine:
         # M A I N - L O O P
         self.main_loop()
 
-    def window_config(self, window_title: str = None):
+    def update_image(self):
+        if self.theme == "dark":
+            self.img_head_light.pack_forget()
+            self.img_head_dark.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)  # Packed in image
+        elif self.theme == "light":
+            self.img_head_dark.pack_forget()
+            self.img_head_light.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)  # Packed in image
+
+
+    def window_config(self, window_title: str = None, theme: bool = None):
         """
         Configuration for the window.
 
         :param window_title: Title in the upper bar of the window.
         """
+        if theme is not None:
+            self.theme = theme
 
         if self.theme == "light":
             self.bg_default = "#ffffff"
@@ -99,6 +91,11 @@ class BookletMachine:
         else:
             self.bg_default = "#303030"
             self.fg_default = "#ffffff"
+
+        try:
+            self.update_image()
+        except AttributeError:
+            pass
 
         style = ttk.Style()
         font_name = "Courier"
@@ -108,7 +105,8 @@ class BookletMachine:
                 font=(font_name, 20, "bold"),
                 anchor="center",
                 foreground=self.fg_default, 
-                background=self.bg_default
+                background=self.bg_default,
+                bd=0
                 )
         style.configure(
                 "NB.TNotebook", 
@@ -116,6 +114,7 @@ class BookletMachine:
                 relief=tk.FLAT,
                 foreground=self.fg_default, 
                 background=self.bg_default,
+                bd=0,
                 )
         style.configure(
                 "NB.TNotebook.Tab", 
@@ -127,13 +126,14 @@ class BookletMachine:
         style.map(
                 "NB.TNotebook.Tab", 
                 foreground=[("selected", self.fg_default), ("active", "#000000")],
-                background=[("selected", self.bg_default), ("active", "#ad7fa8")], 
+                background=[("selected", self.bg_default), ("active", self.active_color)], 
                 )
         style.configure(
                 "Regular.TLabel", 
                 font=(font_name, 12, "italic"),
                 foreground=self.fg_default, 
-                background=self.bg_default
+                background=self.bg_default,
+                bd=0
                 )
         style.configure(
                 "Regular.TButton", 
@@ -145,17 +145,38 @@ class BookletMachine:
         style.map(
                 "Regular.TButton", 
                 foreground=[("selected", self.fg_default), ("active", "#000000")],
-                background=[("selected", self.bg_default), ("active", "#ad7fa8")], 
+                background=[("selected", self.bg_default), ("active", self.active_color)], 
+                )
+        style.configure(
+                "Regular.TCheckbutton", 
+                # font=(font_name, 12, "bold italic"),
+                relief=tk.FLAT,
+                foreground=self.fg_default, 
+                background=self.bg_default
+                )
+        style.map(
+                "Regular.TCheckbutton", 
+                foreground=[("selected", self.fg_default), ("active", self.fg_default)],
+                background=[("selected", self.bg_default), ("active", self.bg_default)], 
                 )
         style.configure(
                 "Booklet.TFrame", 
                 foreground=self.fg_default, 
-                background=self.bg_default
+                background=self.bg_default,
+                bd=0
                 )
         style.configure(
                 "Regular.TCombobox", 
                 foreground=self.fg_default, 
-                background=self.bg_default
+                background=self.bg_default,
+                selectforeground=self.active_color,
+                selectbackground="#000000",
+                bd=0
+                )
+        style.map(
+                "Regular.TCombobox", 
+                fieldforeground=[("readonly", self.fg_default), ("selected", "#000000")],
+                fieldbackground=[("readonly", self.bg_default), ("selected", self.active_color)], 
                 )
         style.configure(
                 "Browser.TEntry", 
@@ -166,9 +187,10 @@ class BookletMachine:
                 background=self.bg_default,
                 filedforeground=self.fg_default, 
                 fieldbackground=self.bg_default,
-                selectforeground="#ad7fa8",
+                selectforeground=self.active_color,
                 selectbackground="#000000",
-                justify=tk.RIGHT
+                justify=tk.RIGHT,
+                bd=0
                 )
 
         self.window.configure(bg=self.bg_default)
