@@ -6,5 +6,3 @@ Home             |  Settings
 :-------------------------:|:-------------------------:
 ![Home - Dark Theme](./store/booklet_dark_home.png) | ![Settings - Dark Theme](./store/booklet_dark_settings.png)
 
-[comment]: # ( ![Home - Light Theme](./store/booklet_light_home.png) | ![Settings - Light Theme](./store/booklet_light_settings.png) )
-
