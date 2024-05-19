@@ -237,6 +237,9 @@ class BookletReader:
         self.__signature_reader = signature_reader
         self.booklet_layout = self.compute_layout()
     
+    @property
+    def mediabox(self):
+        return self.__input_reader.pages[0].mediabox
 
     @property
     def pages(self):
@@ -306,7 +309,7 @@ class BookletWriter:
             left_page = self.__reader.sorted_page(n)
             right_page = self.__reader.sorted_page(n + 1)
 
-            big_page = PageObject.create_blank_page(height=left_page.mediabox.height, width=left_page.mediabox.width*2)
+            big_page = PageObject.create_blank_page(height=self.__reader.mediabox.height, width=self.__reader.mediabox.width*2)
             big_page.merge_page(right_page)
             big_page.add_transformation(Transformation().translate(tx=left_page.mediabox.width))
             big_page.merge_page(left_page)
