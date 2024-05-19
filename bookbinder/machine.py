@@ -3,12 +3,12 @@
 """
 
 from PyPDF2 import PdfReader, PdfWriter, PageObject, Transformation
-# from PyPDF2.pdf import PageObject
 from typing import Tuple
 import numpy as np
 from os.path import join as join_path
 
 from utils.const import OUTDIR, STORE
+from utils.const import FACES_PER_SHEET, SHEETS_PER_BOOKLET, FACES_PER_BOOKLET
 from utils.footils import inch2mm, mm2inch, basename
 
 
@@ -229,3 +229,93 @@ class Booklet:
 
         with open(join_path(output_dir_path, f"{basename(input_file_path)}_booklet.pdf"), 'wb') as fo:
             pdf.write(fo)
+
+
+class BookletReader:
+    def __init__(self, input_reader: PdfReader, signature_reader:PdfReader):
+        self.__input_reader = input_reader
+        self.__signature_reader = signature_reader
+        self.booklet_layout = self.compute_layout()
+    
+
+    @property
+    def pages(self):
+        return self.__input_reader.pages
+
+    @property
+    def length(self) -> int:
+        appended_lenght = len(self.__input_reader.pages) + len(self.__signature_reader.pages)
+        return ((appended_lenght - 1)//FACES_PER_BOOKLET + 1)*FACES_PER_BOOKLET
+    
+    def page(self, num_page:int, debug=False) -> PageObject:
+        frontier_1 = len(self.__input_reader.pages)
+        frontier_2 = frontier_1 + len(self.__signature_reader.pages)
+
+        if 0 <= num_page < frontier_1: # Original pages
+            comment = f"Original page {num_page}"
+            page = self.__input_reader.pages[num_page]
+        elif frontier_1 <= num_page < frontier_2: # Signature pages
+            comment = f"Signature page {num_page - frontier_1}"
+            page = self.__signature_reader.pages[num_page - frontier_1]
+        elif frontier_2 <= num_page < self.length: # Blank pages
+            comment = f"Blank page {num_page - frontier_2}"
+            page = PageObject.create_blank_page(self.__input_reader)
+        else:
+            raise Exception(f"Index {num_page} is out of ranges [ {0}-{frontier_1-1} | {frontier_1}-{frontier_2-1} | {frontier_2}-{self.length-1} ].")
+        # print(comment)
+        # return comment
+        if debug:
+            return comment
+        else:
+            return page
+    
+    def compute_layout(self):
+        new_layout = [0 for p in range(self.length)]
+        num_booklets = self.length // FACES_PER_BOOKLET
+
+        for booklet_number in range(num_booklets):
+            for n in range(0, FACES_PER_BOOKLET, 2):
+
+                first_page_booklet = booklet_number * FACES_PER_BOOKLET
+                first_couple = 1 + n/2 + first_page_booklet
+                second_couple = FACES_PER_BOOKLET - n/2 + first_page_booklet
+                if n % 4 == 2:
+                    new_layout[first_page_booklet + n] = int(first_couple) - 1
+                    new_layout[first_page_booklet + n + 1] = int(second_couple) - 1
+                else:
+                    new_layout[first_page_booklet + n + 1] = int(first_couple) - 1
+                    new_layout[first_page_booklet + n] = int(second_couple) - 1
+        return new_layout
+    
+    def sorted_page(self, num_page, debug=False):
+        return self.page(self.booklet_layout[num_page], debug)
+
+
+class BookletWriter:
+    __writer = PdfWriter()
+    def __init__(self, booklet_reader, save_location=None):
+        self.__reader = booklet_reader
+        self.compute_writer()
+        self.save_location = save_location
+        if save_location is not None:
+            self.save()
+
+    def compute_writer(self):
+        for ix, n in enumerate(range(0, self.__reader.length, 2)):
+            print(f"Coupple {n}|{n + 1}:", self.__reader.sorted_page(n, debug=True), "|", self.__reader.sorted_page(n + 1, debug= True))
+            left_page = self.__reader.sorted_page(n)
+            right_page = self.__reader.sorted_page(n + 1)
+
+            big_page = PageObject.create_blank_page(height=left_page.mediabox.height, width=left_page.mediabox.width*2)
+            big_page.merge_page(right_page)
+            big_page.add_transformation(Transformation().translate(tx=left_page.mediabox.width))
+            big_page.merge_page(left_page)
+
+            self.__writer.add_page(big_page.rotate(90 if ix % 2 else -90))
+    
+    def save(self, save_location=None):
+        if save_location is not None:
+            self.save_location = save_location
+
+        with open(self.save_location, "wb") as fp:
+            self.__writer.write(fp)
