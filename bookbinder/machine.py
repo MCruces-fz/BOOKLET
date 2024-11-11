@@ -255,13 +255,13 @@ class BookletReader:
         frontier_2 = frontier_1 + len(self.__signature_reader.pages)
 
         if 0 <= num_page < frontier_1: # Original pages
-            comment = f"Original page {num_page}"
+            comment = f"Original page..{num_page:.>3}"
             page = self.__input_reader.pages[num_page]
         elif frontier_1 <= num_page < frontier_2: # Signature pages
-            comment = f"Signature page {num_page - frontier_1}"
+            comment = f"Signature page.{num_page - frontier_1:.>3}"
             page = self.__signature_reader.pages[num_page - frontier_1]
         elif frontier_2 <= num_page < self.length: # Blank pages
-            comment = f"Blank page {num_page - frontier_2}"
+            comment = f"Blank page.....{num_page - frontier_2:.>3}"
             page = PageObject.create_blank_page(self.__input_reader)
         else:
             raise Exception(f"Index {num_page} is out of ranges [ {0}-{frontier_1-1} | {frontier_1}-{frontier_2-1} | {frontier_2}-{self.length-1} ].")
@@ -305,7 +305,10 @@ class BookletWriter:
 
     def compute_writer(self):
         for ix, n in enumerate(range(0, self.__reader.length, 2)):
-            print(f"Coupple {n}|{n + 1}:", self.__reader.sorted_page(n, debug=True), "|", self.__reader.sorted_page(n + 1, debug= True))
+            print(f"Coupple [{n: >3}|{n + 1: >3}]: ", 
+            f"[{self.__reader.sorted_page(n, debug=True): >18} | ",
+            f"{self.__reader.sorted_page(n + 1, debug= True): >18}]")
+
             left_page = self.__reader.sorted_page(n)
             right_page = self.__reader.sorted_page(n + 1)
 
