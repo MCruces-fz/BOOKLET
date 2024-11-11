@@ -1,12 +1,13 @@
+from bookbinder.machine import BookletReader, BookletWriter
+from PyPDF2 import PdfReader
 from os.path import join as join_path
+from utils.const import OUTDIR, INPDIR, STORAGE, TESTDIR
 
-from bookbinder.machine import Booklet
-from utils.const import OUTDIR, INPDIR
 
-input_pdf_path = join_path(INPDIR, "CallofCthulhu.pdf")
-Booklet.create_and_save(input_pdf_path, OUTDIR)
-
-# booklet = Booklet(input_pdf_path)
-# output = booklet.create()
-# with open(join_path(OUTDIR, f'output_booklet.pdf'), 'wb') as fo:
-#     output.write(fo)
+# input_reader = PdfReader(join_path(TESTDIR, "dummy.pdf"))
+input_reader = PdfReader(join_path(INPDIR, "La_Historia_de_mi_Vida.pdf"))
+signature_reader = PdfReader(join_path(STORAGE,"signature.pdf"))
+booklet_reader = BookletReader(input_reader, signature_reader)
+booklet_writer = BookletWriter(booklet_reader)
+booklet_writer.save_location = join_path(OUTDIR, "La_Historia_de_mi_Vida_booklet.pdf")
+booklet_writer.save()
