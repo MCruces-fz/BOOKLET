@@ -119,3 +119,4 @@ ENV/
 *.session
 DS/
 nohup.out
+.vscode/
