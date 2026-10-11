@@ -14,17 +14,24 @@ class Papierformat(Enum):
     A5 = Dimensions(420, 595)
 
 
-@dataclass
 class LayoutConfig:
     """Configuration for output booklet layout"""
-    sheets_per_booklet: int
-    output_paper_size: Dimensions = Papierformat.A4
-    include_signature: bool = True
+
+    __faces_per_sheet = 4
+
+    def __init__(
+        self, 
+        sheets_per_booklet: int, 
+        output_paper_size: Dimensions = Papierformat.A4,
+        include_signature: bool = True):
+
+        self.sheets_per_booklet = sheets_per_booklet
+        self.output_paper_size = output_paper_size
+        self.include_signature = include_signature
 
     @property
     def faces_per_booklet(self) -> int:
-        faces_per_sheet: int = 4
-        return faces_per_sheet * self.sheets_per_booklet
+        return self.__faces_per_sheet * self.sheets_per_booklet
 
 
 @dataclass

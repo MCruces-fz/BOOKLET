@@ -3,17 +3,21 @@ from typing import List
 
 
 class Book:
+
+    __booklets: List[Booklet] | None = None
+
     def __init__(self, config: LayoutConfig, source_length: int):
         self.config = config
         self.source_lenght = source_length
 
     @property
     def booklets(self) -> List[Booklet]:
-        return [
-            Booklet(number_of_sheets=self.config.sheets_per_booklet) 
-            for booklet in range(self.booklets_quantity)
-        ]
-
+        if self.__booklets is None:
+            self.__booklets = [
+                Booklet(number_of_sheets=self.config.sheets_per_booklet) 
+                for booklet in range(self.booklets_quantity)
+            ]
+        return self.__booklets
 
     @property
     def booklets_quantity(self) -> int:
@@ -31,10 +35,8 @@ class Book:
         if self.config.include_signature:
             full_length += signature_length
 
-        booklets = (full_length - 1) // self.config.faces_per_booklet + 1
-
-        return booklets
-
+        # NOTE: equivalent to math.ceil(full_length / config.faces_per_booklet)
+        return (full_length - 1) // self.config.faces_per_booklet + 1
 
 
 class Engine:
@@ -54,9 +56,8 @@ class Engine:
         if config.include_signature:
             full_length += signature_length
 
-        booklets = (full_length - 1) // config.faces_per_booklet + 1
-
-        return booklets
+        # NOTE: equivalent to math.ceil(full_length / config.faces_per_booklet)
+        return (full_length - 1) // config.faces_per_booklet + 1
 
     @classmethod
     def compute_layout(self, config: LayoutConfig, pages: List[Page]) -> Layout:
@@ -64,9 +65,12 @@ class Engine:
 
         for booklet_number in range(self.booklets_quantity(config, pages)):
             first_page_booklet = booklet_number * config.faces_per_booklet
-            for n in range(0, config.faces_per_booklet, 2):
-                first_couple = 1 + n//2 + first_page_booklet
-                second_couple = config.faces_per_booklet - n//2 + first_page_booklet
+            for couple_index in range(0, config.faces_per_booklet, 2):
+                first_couple = 1 + couple_index//2 + first_page_booklet
+                second_couple = config.faces_per_booklet - couple_index//2 + first_page_booklet
+
+                if couple_index % 4 == 2:
+                    pass
         
         # TODO: Aquí lo ideal sería recorrer el objeto `Book` por el orden correcto
         # e ir añadiendo en cada `BookletPage` los `page_nubmer` y `source_page_number` correspondientes.
