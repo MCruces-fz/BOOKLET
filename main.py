@@ -16,20 +16,22 @@
 
 from core.layout_engine import Engine, Book
 from core.models import LayoutConfig, Page, Papierformat
+import json
 
 layout_config = LayoutConfig(sheets_per_booklet=4)
-pages = [
-    Page(1, Papierformat.A5, title="Authors"), 
-    Page(2, Papierformat.A5, title="Index"),
-    Page(3, Papierformat.A5),
-    Page(4, Papierformat.A5, title="END")
-    ]
+pages = (
+    [Page(1, Papierformat.A5, title="Authors"), 
+    Page(2, Papierformat.A5, title="Index")] 
+    + [Page(n, Papierformat.A5) for n in range(20)]
+    + [Page(4, Papierformat.A5, title="END")]
+)
 
-eng = Engine.compute_layout(layout_config, pages)
+# book = Book(config=layout_config, source_length=len(pages))
 
-book = Book(config=layout_config, source_length=15)
-# print(len(book.booklets))
-print(book.booklets_quantity)
 
-for bkl in book.booklets:
-    print(bkl)
+layout = Engine.compute_layout(layout_config, pages)
+print(f"Booklets quantity: {layout.book.booklets_quantity}")
+
+# print(json.dumps(layout.mapping, indent=2))
+
+print(layout.book.)

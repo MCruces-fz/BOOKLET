@@ -2,6 +2,10 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import List
 
+
+FACES_PER_SHEET = 4
+
+
 @dataclass(frozen=True)
 class Dimensions:
     width: int
@@ -17,8 +21,6 @@ class Papierformat(Enum):
 class LayoutConfig:
     """Configuration for output booklet layout"""
 
-    __faces_per_sheet = 4
-
     def __init__(
         self, 
         sheets_per_booklet: int, 
@@ -31,7 +33,7 @@ class LayoutConfig:
 
     @property
     def faces_per_booklet(self) -> int:
-        return self.__faces_per_sheet * self.sheets_per_booklet
+        return FACES_PER_SHEET * self.sheets_per_booklet
 
 
 @dataclass
@@ -46,7 +48,8 @@ class Page:
 class Layout:
     pages: List[Page]
     audit_config: LayoutConfig
-    # mapping: dict[int, int] = {}
+    book: None
+    mapping: dict[int, int] = field(default_factory=lambda: {})
 
 
 @dataclass
@@ -62,19 +65,21 @@ class BookletFace:
 
 @dataclass
 class BookletSheet:
-    odd: BookletFace = field(default_factory=lambda: BookletFace())
-    even: BookletFace = field(default_factory=lambda: BookletFace())
+    index: int
+    back: BookletFace = field(default_factory=lambda: BookletFace())
+    front: BookletFace = field(default_factory=lambda: BookletFace())
     paper_size: Dimensions = Papierformat.A4
 
 
 @dataclass
 class Booklet:
+    index: int
     number_of_sheets: int
     sheets: List[BookletSheet] | None = None
 
     def __post_init__(self):
         if self.sheets is None:
-            self.sheets = [BookletSheet() for s in range(self.number_of_sheets)] 
+            self.sheets = [BookletSheet(self.index + s) for s in range(self.number_of_sheets)] 
 
 
 if __name__ == "__main__":
